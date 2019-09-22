@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.14.10-fsg
+ * Quasar Framework v0.14.10-fsg-01
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */

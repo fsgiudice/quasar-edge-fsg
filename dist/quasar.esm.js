@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.14.10-fsg
+ * Quasar Framework v0.14.10-fsg-01
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -312,7 +312,7 @@ var theme = Object.freeze({
 	get current () { return current; }
 });
 
-var version = "0.14.10-fsg";
+var version = "0.14.10-fsg-01";
 
 var Vue;
 
@@ -890,7 +890,11 @@ var InputMixin = {
     maxLength: [Number, String],
     maxHeight: Number,
     placeholder: String,
-    loading: Boolean
+    loading: Boolean,
+    autocapitalize: String, // as suggested from https://forum.quasar-framework.org/topic/928/q-input-turn-off-spellcheck-capitalization-autocorrect/4
+    autocomplete: String,
+    autocorrect: String,
+    spellcheck: String
   },
   computed: {
     inputPlaceholder: function inputPlaceholder () {
