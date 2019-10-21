@@ -7333,7 +7333,8 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
         return []
       }
 
-      var rows = clone(this.data);
+      // let rows = clone(this.data)
+      var rows = this.data;
 
       rows.forEach(function (row, i) {
         row.__index = i;
