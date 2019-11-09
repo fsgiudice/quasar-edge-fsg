@@ -7326,7 +7326,7 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
   mixins: [ColumnSelection, Filter, I18n, Pagination, Responsive, RowSelection, Scroll, Sort, StickyColumns],
   props: {
     data: {
-      type: Array,
+      type: [Array, Function],
       default: function default$1 () { return [] }
     },
     columns: {
