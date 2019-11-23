@@ -6778,6 +6778,22 @@ var RowSelection = {
     }
   },
   methods: {
+    updateSelection: function updateSelection () {
+      var this$1 = this;
+
+      if (this.multipleSelection) {
+        this.rowSelection = this.rows.map(function (row,index) { return this$1.rowSelection[index]; });
+      }
+
+      if (this.rowsSelected) {
+        this.toolbar = 'selection';
+        return
+      }
+      if (this.toolbar === 'selection') {
+        this.toolbar = '';
+      }
+    },
+
     selectAllRows: function selectAllRows (value) {
       // console.log('method selectAllRows:', value)
       if (!this.multipleSelection) {
@@ -7364,6 +7380,17 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
         this$1.$set(row, '__lastUpdate', row.__index + '_' + Date.now() );
         // add function to force update of row
         row.__forceUpdate = function () {
+          row.__lastUpdate = row.__index + '_' + Date.now();
+        };
+        // add function to select/unselect row
+        row.__select = function () {
+          this$1.rowSelection[row.__index] = true;
+          this$1.updateSelection();
+          row.__lastUpdate = row.__index + '_' + Date.now();
+        };
+        row.__unselect = function () {
+          this$1.rowSelection[row.__index] = false;
+          this$1.updateSelection();
           row.__lastUpdate = row.__index + '_' + Date.now();
         };
       });
