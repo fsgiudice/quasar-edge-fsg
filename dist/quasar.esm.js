@@ -12773,6 +12773,8 @@ function show (ref) {
   var spinnerSize = ref.spinnerSize; if ( spinnerSize === void 0 ) spinnerSize = 80;
   var spinnerColor = ref.spinnerColor; if ( spinnerColor === void 0 ) spinnerColor = 'white';
   var messageColor = ref.messageColor; if ( messageColor === void 0 ) messageColor = 'white';
+  var messageClass = ref.messageClass; if ( messageClass === void 0 ) messageClass = null;
+  var messageStyle = ref.messageStyle; if ( messageStyle === void 0 ) messageStyle = null;
   var spinner = ref.spinner; if ( spinner === void 0 ) spinner = QSpinner;
   var customClass = ref.customClass; if ( customClass === void 0 ) customClass = false;
 
@@ -12781,6 +12783,8 @@ function show (ref) {
   props.spinnerSize = spinnerSize;
   props.spinnerColor = spinnerColor;
   props.messageColor = messageColor;
+  props.messageClass = messageClass;
+  props.messageStyle = messageStyle;
 
   if (customClass && typeof customClass === 'string') {
     props.customClass = " " + (customClass.trim());
@@ -12812,7 +12816,8 @@ function show (ref) {
 
         if (message) {
           child.push(h('div', {
-            staticClass: ("text-" + (props.messageColor)),
+            staticClass: props.messageClass ? props.messageClass : ("text-" + (props.messageColor)),
+            style: props.messageStyle,
             domProps: {
               innerHTML: props.message
             }
