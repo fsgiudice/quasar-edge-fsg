@@ -3470,9 +3470,9 @@ var TouchPan = {
     if (mouse) {
       el.addEventListener('mousedown', ctx.mouseStart);
     }
-    el.addEventListener('touchstart', ctx.start);
-    el.addEventListener('touchmove', ctx.move);
-    el.addEventListener('touchend', ctx.end);
+    el.addEventListener('touchstart', ctx.start, {passive: true});
+    el.addEventListener('touchmove', ctx.move, {passive: true});
+    el.addEventListener('touchend', ctx.end, {passive: true});
   },
   update: function update (el, binding) {
     if (binding.oldValue !== binding.value) {
@@ -3481,10 +3481,10 @@ var TouchPan = {
   },
   unbind: function unbind (el, binding) {
     var ctx = el.__qtouchpan;
-    el.removeEventListener('touchstart', ctx.start);
+    el.removeEventListener('touchstart', ctx.start, {passive: true});
     el.removeEventListener('mousedown', ctx.mouseStart);
-    el.removeEventListener('touchmove', ctx.move);
-    el.removeEventListener('touchend', ctx.end);
+    el.removeEventListener('touchmove', ctx.move, {passive: true});
+    el.removeEventListener('touchend', ctx.end, {passive: true});
     delete el.__qtouchpan;
   }
 };
@@ -5242,9 +5242,9 @@ var TouchSwipe = {
     if (mouse) {
       el.addEventListener('mousedown', ctx.start);
     }
-    el.addEventListener('touchstart', ctx.start);
-    el.addEventListener('touchmove', ctx.move);
-    el.addEventListener('touchend', ctx.end);
+    el.addEventListener('touchstart', ctx.start, {passive: true});
+    el.addEventListener('touchmove', ctx.move, {passive: true});
+    el.addEventListener('touchend', ctx.end, {passive: true});
   },
   update: function update (el, binding) {
     if (binding.oldValue !== binding.value) {
@@ -5253,10 +5253,10 @@ var TouchSwipe = {
   },
   unbind: function unbind (el, binding) {
     var ctx = el.__qtouchswipe;
-    el.removeEventListener('touchstart', ctx.start);
+    el.removeEventListener('touchstart', ctx.start, {passive: true});
     el.removeEventListener('mousedown', ctx.start);
-    el.removeEventListener('touchmove', ctx.move);
-    el.removeEventListener('touchend', ctx.end);
+    el.removeEventListener('touchmove', ctx.move, {passive: true});
+    el.removeEventListener('touchend', ctx.end, {passive: true});
     delete el.__qtouchswipe;
   }
 };
@@ -6582,7 +6582,8 @@ var defaultOptions = [
 ];
 
 function parseOptions (opts) {
-  return [{ label: 'All', value: 0 }].concat(
+  // return [{ label: 'All', value: 0 }].concat(
+  return [].concat(
     opts.map(function (opt) {
       return {
         label: '' + opt,
@@ -6614,7 +6615,7 @@ var Pagination = {
         }
       }
 
-      options[0].label = this.labels.all;
+      options[0].label = this.labels.all || 'All';
 
       return {
         get page () { return self.$data._pagination.page },
@@ -6625,7 +6626,8 @@ var Pagination = {
           var rowsPerPage = self.$data._pagination.rowsPerPage;
           if (rowsPerPage == null) {
             if (cfg && typeof cfg.rowsPerPage !== 'undefined') {
-              rowsPerPage = cfg.rowsPerPage;
+              // rowsPerPage = cfg.rowsPerPage
+              rowsPerPage = (typeof cfg.rowsPerPage === 'function' ? cfg.rowsPerPage() : cfg.rowsPerPage);
             }
             else {
               rowsPerPage = 0;
@@ -6716,12 +6718,12 @@ var RowSelection = {
   watch: {
     'data': function data (value) {
       // console.log('row-selection - dati modificati', value)
-      // if (typeof value !== 'Array' || value.length === 0) {
-      //   this.rowAllSelected = false
-      // }
-      this.clearSelection ();
-      this.rowAllSelected = false;
-      this.rowSelection = getRowSelection(this.rows, this.config.selection, this.multipleSelection);
+      if (typeof value !== 'Array' || value.length === 0) {
+        this.rowAllSelected = false;
+      }
+      // this.clearSelection ()
+      // this.rowAllSelected = false
+      // this.rowSelection = getRowSelection(this.rows, this.config.selection, this.multipleSelection)
     },
     'rowsSelected': function rowsSelected (value) {
       if (value === 0) {
@@ -6832,7 +6834,7 @@ var RowSelection = {
     rowsUnselectAll: function rowsUnselectAll () {
       // console.log('rowsUnselectAll')
       // this.rowSelection = this.rows.map(() => false)
-      this.rowSelection.map(function (r) { return [false,r[1]]; });
+      this.rowSelection = this.rowSelection.map(function (r) { return [false,r[1]]; });
     },
     clearSelection: function clearSelection () {
       if (!this.multipleSelection) {
@@ -6840,7 +6842,7 @@ var RowSelection = {
         return
       }
       // this.rowSelection = this.rows.map(() => false)
-      this.rowSelection.map(function (r) { return [false,r[1]]; });
+      this.rowSelection = this.rowSelection.map(function (r) { return [false,r[1]]; });
       this.rowAllSelected = false;
     },
     emitRowClick: function emitRowClick (row) {
@@ -7346,7 +7348,7 @@ var TableContent = {render: function(){var _vm=this;var _h=_vm.$createElement;va
 
 // import clone from '../../utils/clone'
 
-var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-data-table"},[(_vm.hasToolbar && _vm.toolbar === '')?[_c('div',{staticClass:"q-data-table-toolbar upper-toolbar row reverse-wrap items-center justify-end"},[(_vm.config.format || _vm.config.title)?_c('div',{staticClass:"q-data-table-title ellipsis col",domProps:{"innerHTML":_vm._s(_vm.displayFormat)}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"row items-center"},[(_vm.config.refresh && !_vm.refreshing)?_c('q-btn',{attrs:{"flat":"","color":"primary"},on:{"click":_vm.refresh}},[_c('q-icon',{attrs:{"name":"refresh"}})],1):_vm._e(),_vm._v(" "),(_vm.refreshing)?_c('q-btn',{staticClass:"disabled"},[_c('q-icon',{staticClass:"animate-spin-reverse",attrs:{"name":"cached"}})],1):_vm._e(),_vm._v(" "),(_vm.config.columnPicker)?_c('q-select',{staticStyle:{"margin":"0 0 0 10px"},attrs:{"multiple":"multiple","toggle":"","options":_vm.columnSelectionOptions,"display-value":_vm.labels.columns,"simple":""},model:{value:(_vm.columnSelection),callback:function ($$v) {_vm.columnSelection=$$v;},expression:"columnSelection"}}):_vm._e()],1)])]:_vm._e(),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.toolbar === 'selection'),expression:"toolbar === 'selection'"}],staticClass:"q-data-table-toolbar upper-toolbar row reverse-wrap items-center justify-end q-data-table-selection"},[_c('div',{staticClass:"col"},[_vm._v(" "+_vm._s(_vm.rowsSelected)+" "),(_vm.rowsSelected === 1)?_c('span',[_vm._v(_vm._s(_vm.labels.selected.singular))]):_c('span',[_vm._v(_vm._s(_vm.labels.selected.plural))]),_vm._v(" "),_c('q-btn',{attrs:{"flat":"","small":"","color":"primary"},on:{"click":_vm.clearSelection}},[_vm._v(_vm._s(_vm.labels.clear))])],1),_vm._v(" "),_c('div',[_vm._t("selection",null,{rows:_vm.selectedRows})],2)]),_vm._v(" "),(_vm.filteringCols.length)?_c('table-filter',{attrs:{"filtering":_vm.filtering,"columns":_vm.filteringCols,"labels":_vm.labels}}):_vm._e(),_vm._v(" "),(_vm.responsive)?[(_vm.message)?_c('div',{staticClass:"q-data-table-message row flex-center",domProps:{"innerHTML":_vm._s(_vm.message)}}):_c('div',{staticStyle:{"overflow":"auto"},style:(_vm.bodyStyle)},[_c('table',{ref:"body",staticClass:"q-table horizontal-separator responsive"},[_c('tbody',_vm._l((_vm.rows),function(row,index){return _c('tr',{on:{"click":function($event){_vm.emitRowClick(row);}}},[(_vm.config.selection)?_c('td',[(_vm.config.selection === 'multiple' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-checkbox',{model:{value:(_vm.rowSelection[index][0]),callback:function ($$v) {_vm.$set(_vm.rowSelection[index], 0, $$v);},expression:"rowSelection[index][0]"}}):(_vm.config.selection === 'single' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-radio',{attrs:{"val":index},model:{value:(_vm.rowSelection[0][0]),callback:function ($$v) {_vm.$set(_vm.rowSelection[0], 0, $$v);},expression:"rowSelection[0][0]"}}):_vm._e()],1):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field])),attrs:{"data-th":col.label}},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)})],2)}))])])]:_c('div',{staticClass:"q-data-table-container",on:{"wheel":_vm.mouseWheel,"mousewheel":_vm.mouseWheel,"DOMMouseScroll":_vm.mouseWheel}},[(_vm.hasHeader)?_c('div',{ref:"head",staticClass:"q-data-table-head",style:({marginRight: _vm.scroll.vert})},[_c('table-content',{attrs:{"head":"","cols":_vm.cols,"sorting":_vm.sorting,"scroll":_vm.scroll,"selection":_vm.config.selection,"rowAllSelection":_vm.rowAllSelected,"selectAllRowsLabel":_vm.selectAllLabel},on:{"sort":_vm.setSortField,"selectAllRows":_vm.selectAllRows}})],1):_vm._e(),_vm._v(" "),_c('div',{ref:"body",staticClass:"q-data-table-body",style:(_vm.bodyStyle),on:{"scroll":_vm.scrollHandler}},[(_vm.message)?_c('div',{staticClass:"q-data-table-message row flex-center",domProps:{"innerHTML":_vm._s(_vm.message)}}):_c('table-content',{attrs:{"cols":_vm.cols,"selection":_vm.config.selection}},_vm._l((_vm.rows),function(row){return _c('tr',{style:(_vm.rowStyle),on:{"click":function($event){_vm.emitRowClick(row);}}},[(_vm.config.selection)?_c('td'):_vm._e(),_vm._v(" "),(_vm.leftStickyColumns)?_c('td',{attrs:{"colspan":_vm.leftStickyColumns}}):_vm._e(),_vm._v(" "),_vm._l((_vm.regularCols),function(col){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field]))},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)}),_vm._v(" "),(_vm.rightStickyColumns)?_c('td',{attrs:{"colspan":_vm.rightStickyColumns}}):_vm._e()],2)}))],1),_vm._v(" "),(!_vm.message && (_vm.leftStickyColumns || _vm.config.selection))?[_c('div',{ref:"stickyLeft",staticClass:"q-data-table-sticky-left",style:({bottom: _vm.scroll.horiz})},[_c('table-sticky',{attrs:{"no-header":!_vm.hasHeader,"sticky-cols":_vm.leftStickyColumns,"cols":_vm.cols,"sorting":_vm.sorting,"selection":_vm.config.selection,"rowAllSelection":_vm.rowAllSelected,"selectAllRowsLabel":_vm.selectAllLabel},on:{"selectAllRows":_vm.selectAllRows}},_vm._l((_vm.rows),function(row,index){return _c('tr',{key:row.__lastUpdate,style:(_vm.rowStyle),on:{"click":function($event){_vm.emitRowClick(row);}}},[(_vm.config.selection)?_c('td',[(_vm.config.selection === 'multiple' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-checkbox',{model:{value:(_vm.rowSelection[index][0]),callback:function ($$v) {_vm.$set(_vm.rowSelection[index], 0, $$v);},expression:"rowSelection[index][0]"}}):(_vm.config.selection === 'single' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-radio',{attrs:{"val":index},model:{value:(_vm.rowSelection[0][0]),callback:function ($$v) {_vm.$set(_vm.rowSelection[0], 0, $$v);},expression:"rowSelection[0][0]"}}):_vm._e()],1):_vm._e(),_vm._v(" "),_vm._l((_vm.leftCols),function(col,index){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field]))},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)})],2)}))],1),_vm._v(" "),(_vm.hasHeader)?_c('div',{staticClass:"q-data-table-sticky-left",style:({bottom: _vm.scroll.horiz})},[_c('table-sticky',{attrs:{"head":"","sticky-cols":_vm.leftStickyColumns,"scroll":_vm.scroll,"cols":_vm.cols,"sorting":_vm.sorting,"selection":_vm.config.selection,"rowAllSelection":_vm.rowAllSelected,"selectAllRowsLabel":_vm.selectAllLabel},on:{"sort":_vm.setSortField,"selectAllRows":_vm.selectAllRows}})],1):_vm._e()]:_vm._e()],2),_vm._v(" "),(_vm.config.pagination)?_c('table-pagination',{attrs:{"pagination":_vm.pagination,"entries":_vm.pagination.entries,"labels":_vm.labels}}):_vm._e()],2)},staticRenderFns: [],
+var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-data-table"},[(_vm.hasToolbar && _vm.toolbar === '')?[_c('div',{staticClass:"q-data-table-toolbar upper-toolbar row reverse-wrap items-center justify-end"},[(_vm.config.format || _vm.config.title)?_c('div',{staticClass:"q-data-table-title ellipsis col",domProps:{"innerHTML":_vm._s(_vm.displayFormat)}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"row items-center"},[(_vm.config.refresh && !_vm.refreshing)?_c('q-btn',{attrs:{"flat":"","color":"primary"},on:{"click":_vm.refresh}},[_c('q-icon',{attrs:{"name":"refresh"}})],1):_vm._e(),_vm._v(" "),(_vm.refreshing)?_c('q-btn',{staticClass:"disabled"},[_c('q-icon',{staticClass:"animate-spin-reverse",attrs:{"name":"cached"}})],1):_vm._e(),_vm._v(" "),(_vm.config.columnPicker)?_c('q-select',{staticStyle:{"margin":"0 0 0 10px"},attrs:{"multiple":"multiple","toggle":"","options":_vm.columnSelectionOptions,"display-value":_vm.labels.columns,"simple":""},model:{value:(_vm.columnSelection),callback:function ($$v) {_vm.columnSelection=$$v;},expression:"columnSelection"}}):_vm._e()],1)])]:_vm._e(),_vm._v(" "),(_vm.isPaginationDisplayed)?_c('table-pagination',{attrs:{"disabled":!_vm.isPaginationEnabled,"pagination":_vm.pagination,"entries":_vm.pagination.entries,"labels":_vm.labels}}):_vm._e(),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.toolbar === 'selection'),expression:"toolbar === 'selection'"}],staticClass:"q-data-table-toolbar upper-toolbar row reverse-wrap items-center justify-end q-data-table-selection"},[_c('div',{staticClass:"col"},[_vm._v(" "+_vm._s(_vm.rowsSelected)+" "),(_vm.rowsSelected === 1)?_c('span',[_vm._v(_vm._s(_vm.labels.selected.singular))]):_c('span',[_vm._v(_vm._s(_vm.labels.selected.plural))]),_vm._v(" "),_c('q-btn',{attrs:{"flat":"","small":"","color":"primary"},on:{"click":_vm.clearSelection}},[_vm._v(_vm._s(_vm.labels.clear))])],1),_vm._v(" "),_c('div',[_vm._t("selection",null,{rows:_vm.selectedRows})],2)]),_vm._v(" "),(_vm.filteringCols.length)?_c('table-filter',{attrs:{"filtering":_vm.filtering,"columns":_vm.filteringCols,"labels":_vm.labels}}):_vm._e(),_vm._v(" "),(_vm.responsive)?[(_vm.message)?_c('div',{staticClass:"q-data-table-message row flex-center",domProps:{"innerHTML":_vm._s(_vm.message)}}):_c('div',{staticStyle:{"overflow":"auto"},style:(_vm.bodyStyle)},[_c('table',{ref:"body",staticClass:"q-table horizontal-separator responsive"},[_c('tbody',_vm._l((_vm.rows),function(row,index){return _c('tr',{on:{"click":function($event){_vm.emitRowClick(row);}}},[(_vm.config.selection)?_c('td',[(_vm.config.selection === 'multiple' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-checkbox',{model:{value:(_vm.rowSelection[index][0]),callback:function ($$v) {_vm.$set(_vm.rowSelection[index], 0, $$v);},expression:"rowSelection[index][0]"}}):(_vm.config.selection === 'single' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-radio',{attrs:{"val":index},model:{value:(_vm.rowSelection[0][0]),callback:function ($$v) {_vm.$set(_vm.rowSelection[0], 0, $$v);},expression:"rowSelection[0][0]"}}):_vm._e()],1):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field])),attrs:{"data-th":col.label}},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)})],2)}))])])]:_c('div',{staticClass:"q-data-table-container",on:{"wheel":_vm.mouseWheel,"mousewheel":_vm.mouseWheel,"DOMMouseScroll":_vm.mouseWheel}},[(_vm.hasHeader)?_c('div',{ref:"head",staticClass:"q-data-table-head",style:({marginRight: _vm.scroll.vert})},[_c('table-content',{attrs:{"head":"","cols":_vm.cols,"sorting":_vm.sorting,"scroll":_vm.scroll,"selection":_vm.config.selection,"rowAllSelection":_vm.rowAllSelected,"selectAllRowsLabel":_vm.selectAllLabel},on:{"sort":_vm.setSortField,"selectAllRows":_vm.selectAllRows}})],1):_vm._e(),_vm._v(" "),_c('div',{ref:"body",staticClass:"q-data-table-body",style:(_vm.bodyStyle),on:{"scroll":_vm.scrollHandler}},[(_vm.message)?_c('div',{staticClass:"q-data-table-message row flex-center",domProps:{"innerHTML":_vm._s(_vm.message)}}):_c('table-content',{attrs:{"cols":_vm.cols,"selection":_vm.config.selection}},_vm._l((_vm.rows),function(row){return _c('tr',{style:(_vm.rowStyle),on:{"click":function($event){_vm.emitRowClick(row);}}},[(_vm.config.selection)?_c('td'):_vm._e(),_vm._v(" "),(_vm.leftStickyColumns)?_c('td',{attrs:{"colspan":_vm.leftStickyColumns}}):_vm._e(),_vm._v(" "),_vm._l((_vm.regularCols),function(col){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field]))},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)}),_vm._v(" "),(_vm.rightStickyColumns)?_c('td',{attrs:{"colspan":_vm.rightStickyColumns}}):_vm._e()],2)}))],1),_vm._v(" "),(!_vm.message && (_vm.leftStickyColumns || _vm.config.selection))?[_c('div',{ref:"stickyLeft",staticClass:"q-data-table-sticky-left",style:({bottom: _vm.scroll.horiz})},[_c('table-sticky',{attrs:{"no-header":!_vm.hasHeader,"sticky-cols":_vm.leftStickyColumns,"cols":_vm.cols,"sorting":_vm.sorting,"selection":_vm.config.selection,"rowAllSelection":_vm.rowAllSelected,"selectAllRowsLabel":_vm.selectAllLabel},on:{"selectAllRows":_vm.selectAllRows}},_vm._l((_vm.rows),function(row,index){return _c('tr',{key:row.__lastUpdate,style:(_vm.rowStyle),on:{"click":function($event){_vm.emitRowClick(row);}}},[(_vm.config.selection)?_c('td',[(_vm.config.selection === 'multiple' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-checkbox',{model:{value:(_vm.rowSelection[index][0]),callback:function ($$v) {_vm.$set(_vm.rowSelection[index], 0, $$v);},expression:"rowSelection[index][0]"}}):(_vm.config.selection === 'single' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-radio',{attrs:{"val":index},model:{value:(_vm.rowSelection[0][0]),callback:function ($$v) {_vm.$set(_vm.rowSelection[0], 0, $$v);},expression:"rowSelection[0][0]"}}):_vm._e()],1):_vm._e(),_vm._v(" "),_vm._l((_vm.leftCols),function(col,index){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field]))},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)})],2)}))],1),_vm._v(" "),(_vm.hasHeader)?_c('div',{staticClass:"q-data-table-sticky-left",style:({bottom: _vm.scroll.horiz})},[_c('table-sticky',{attrs:{"head":"","sticky-cols":_vm.leftStickyColumns,"scroll":_vm.scroll,"cols":_vm.cols,"sorting":_vm.sorting,"selection":_vm.config.selection,"rowAllSelection":_vm.rowAllSelected,"selectAllRowsLabel":_vm.selectAllLabel},on:{"sort":_vm.setSortField,"selectAllRows":_vm.selectAllRows}})],1):_vm._e()]:_vm._e()],2),_vm._v(" "),(_vm.isPaginationDisplayed)?_c('table-pagination',{attrs:{"disabled":!_vm.isPaginationEnabled,"pagination":_vm.pagination,"entries":_vm.pagination.entries,"labels":_vm.labels}}):_vm._e()],2)},staticRenderFns: [],
   name: 'q-data-table',
   components: {
     QSelect: QSelect,
@@ -7431,6 +7433,37 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
 
       return rows
     },
+
+    isPaginationDisplayed: function isPaginationDisplayed () {
+      var isDisplayed = false;
+      var pagination = this.config.pagination;
+      // debugger
+      if (pagination) {
+         if (pagination.hasOwnProperty('displayed')) {
+           isDisplayed = (typeof pagination.displayed === 'function' ? this.config.pagination.displayed() : this.config.pagination.displayed);
+         }
+         else {
+           isDisplayed = true;
+         }
+      }
+      return isDisplayed
+    },
+
+    isPaginationEnabled: function isPaginationEnabled () {
+      var isEnabled = false;
+      var pagination = this.config.pagination;
+      // debugger
+      if (pagination) {
+         if (pagination.hasOwnProperty('enabled')) {
+           isEnabled = (typeof pagination.enabled === 'function' ? pagination.enabled() : pagination.enabled);
+         }
+         else {
+           isEnabled = true;
+         }
+      }
+      return isEnabled
+    },
+
     rowStyle: function rowStyle () {
       if (this.config.rowHeight) {
         return {height: this.config.rowHeight}
@@ -11991,10 +12024,10 @@ var touchHold = {
 
     el.__qtouchhold = ctx;
     updateBinding$4(el, binding);
-    el.addEventListener('touchstart', ctx.start);
-    el.addEventListener('touchend', ctx.abort);
+    el.addEventListener('touchstart', ctx.start, {passive: true});
+    el.addEventListener('touchend', ctx.abort, {passive: true});
     if (mouse) {
-      el.addEventListener('touchmove', ctx.abort);
+      el.addEventListener('touchmove', ctx.abort, {passive: true});
       el.addEventListener('mousedown', ctx.mouseStart);
     }
   },
@@ -12003,9 +12036,9 @@ var touchHold = {
   },
   unbind: function unbind (el, binding) {
     var ctx = el.__qtouchhold;
-    el.removeEventListener('touchstart', ctx.start);
-    el.removeEventListener('touchend', ctx.abort);
-    el.removeEventListener('touchmove', ctx.abort);
+    el.removeEventListener('touchstart', ctx.start, {passive: true});
+    el.removeEventListener('touchend', ctx.abort, {passive: true});
+    el.removeEventListener('touchmove', ctx.abort, {passive: true});
     el.removeEventListener('mousedown', ctx.mouseStart);
     document.removeEventListener('mousemove', ctx.mouseAbort);
     document.removeEventListener('mouseup', ctx.mouseAbort);
