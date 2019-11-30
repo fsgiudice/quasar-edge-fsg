@@ -6582,8 +6582,7 @@ var defaultOptions = [
 ];
 
 function parseOptions (opts) {
-  // return [{ label: 'All', value: 0 }].concat(
-  return [].concat(
+  return [{ label: 'All', value: 0 }].concat(
     opts.map(function (opt) {
       return {
         label: '' + opt,
