@@ -6456,8 +6456,16 @@ var I18n = {
       return labels
     },
     message: function message () {
+      // console.log('messaggio - loading', this.loading)
+
       if (this.rows.length) {
         return false
+      }
+
+      // debugger
+
+      if (this.loading) {
+        return (this.config.messages && this.config.messages.dataLoading) || '<i class="material-icons">search</i> Loading data, please wait.'
       }
 
       if (this.filtering.terms) {
@@ -6738,7 +6746,8 @@ var RowSelection = {
   watch: {
     'data': function data (value) {
       // console.log('row-selection - dati modificati', value)
-      if (typeof value !== 'Array' || value.length === 0) {
+      // if (typeof value !== 'Array' || value.length === 0) {
+      if (Array.isArray(value) || value.length === 0) {
         this.rowAllSelected = false;
       }
       // this.clearSelection ()
@@ -7397,6 +7406,10 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
       type: [Array, Function],
       default: function default$1 () { return [] }
     },
+    loading: {
+      type: Boolean,
+      default: false
+    },
     columns: {
       type: Array,
       required: true
@@ -7408,29 +7421,66 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
   },
   data: function data () {
     return {
+      internalData: null,
       selected: false,
       toolbar: '',
       refreshing: false
     }
   },
+
+  watch: {
+    data: function data (newValue, oldValue) {
+      // debugger
+      // console.log('watch data', newValue, oldValue)
+      // console.log('watch data - Object.keys(newValue).length', Object.keys(newValue).length)
+      // console.log('watch data - Object.keys(oldValue).length', Object.keys(oldValue).length)
+      // console.log('watch data - newValue ob ', newValue.hasOwnProperty('__ob__'))
+      // console.log('watch data - oldValue ob ', oldValue.hasOwnProperty('__ob__'))
+      this.internalData = newValue;
+      // if (newValue) {
+      //   this.$emit('loading', () => {
+      //     this.loading = false
+      //   })
+      // }
+    }
+
+    // loading (newValue, oldValue) {
+    //   console.log('watch loading', newValue, oldValue)
+    //   // if (newValue) {
+    //   //   this.$emit('loading', () => {
+    //   //     this.loading = false
+    //   //   })
+    //   // }
+    // },
+    //
+    // refreshing (newValue, oldValue) {
+    //   console.log('watch refreshing', newValue, oldValue)
+    //   // if (newValue) {
+    //   //   this.$emit('loading', () => {
+    //   //     this.loading = false
+    //   //   })
+    //   // }
+    // }
+  },
+
   computed: {
     rows: function rows () {
       var this$1 = this;
 
-      var length = this.data.length;
+      var data = this.internalData || [];
 
-      if (!length) {
+      if (!data.length) {
         return []
       }
 
       // let rows = clone(this.data) // no clone, as I can need to update real data
-      var rows = this.data;
+      var rows = data;
 
       // we have to set index AFTER filter and sorting
       rows.forEach(function (row, i) {
         row.__index = i;
         // set lastUpdate as reactive
-        this$1.$set(row, '__lastUpdate', row.__index + '_' + Date.now() );
+        this$1.$set(row, '__lastUpdate', row.__index + '_' + Date.now());
         // add function to force update of row
         row.__forceUpdate = function () {
           row.__lastUpdate = row.__index + '_' + Date.now();
@@ -7474,12 +7524,12 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
       var pagination = this.config.pagination;
       // debugger
       if (pagination) {
-         if (pagination.hasOwnProperty('displayed')) {
-           isDisplayed = (typeof pagination.displayed === 'function' ? this.config.pagination.displayed() : this.config.pagination.displayed);
-         }
-         else {
-           isDisplayed = true;
-         }
+        if (pagination.hasOwnProperty('displayed')) {
+          isDisplayed = (typeof pagination.displayed === 'function' ? this.config.pagination.displayed() : this.config.pagination.displayed);
+        }
+        else {
+          isDisplayed = true;
+        }
       }
       return isDisplayed
     },
@@ -7489,12 +7539,12 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
       var pagination = this.config.pagination;
       // debugger
       if (pagination) {
-         if (pagination.hasOwnProperty('enabled')) {
-           isEnabled = (typeof pagination.enabled === 'function' ? pagination.enabled() : pagination.enabled);
-         }
-         else {
-           isEnabled = true;
-         }
+        if (pagination.hasOwnProperty('enabled')) {
+          isEnabled = (typeof pagination.enabled === 'function' ? pagination.enabled() : pagination.enabled);
+        }
+        else {
+          isEnabled = true;
+        }
       }
       return isEnabled
     },
@@ -7531,6 +7581,18 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
     }
   },
   methods: {
+    loadData: function loadData () {
+      if (typeof this.data === 'function') {
+        // console.log('watch data - ', this.pagination.page, this.pagination.rowsPerPage, this.filtering.terms, this.sorting.field)
+        console.log('loadData function');
+        this.internalData = this.data(this.pagination.page, this.pagination.rowsPerPage, this.filtering.terms, this.sorting.field);
+      }
+      else {
+        console.log('loadData property');
+        this.internalData = this.data;
+      }
+      console.log('loadData this.internalData.length', this.internalData.length);
+    },
     resetBody: function resetBody () {
       var body = this.$refs.body;
 
@@ -7553,6 +7615,7 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
         this.$emit('refresh', function () {
           this$1.refreshing = false;
         });
+        this.loadData();
       }
     },
     formatStyle: function formatStyle (col, value) {
