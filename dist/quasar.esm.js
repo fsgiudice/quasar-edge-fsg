@@ -7421,7 +7421,7 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
   },
   data: function data () {
     return {
-      internalData: null,
+      internalData: [],
       selected: false,
       toolbar: '',
       refreshing: false
@@ -7584,14 +7584,14 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
     loadData: function loadData () {
       if (typeof this.data === 'function') {
         // console.log('watch data - ', this.pagination.page, this.pagination.rowsPerPage, this.filtering.terms, this.sorting.field)
-        console.log('loadData function');
+        // console.log('loadData function')
         this.internalData = this.data(this.pagination.page, this.pagination.rowsPerPage, this.filtering.terms, this.sorting.field);
       }
       else {
-        console.log('loadData property');
+        // console.log('loadData property')
         this.internalData = this.data;
       }
-      console.log('loadData this.internalData.length', this.internalData.length);
+      // console.log('loadData this.internalData.length', this.internalData.length)
     },
     resetBody: function resetBody () {
       var body = this.$refs.body;
