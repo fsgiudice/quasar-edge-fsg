@@ -736,7 +736,7 @@ var QTransition = {
   }
 };
 
-var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-alert-container",class:_vm.containerClass},[_c('q-transition',{attrs:{"name":_vm.name,"enter":_vm.enter,"leave":_vm.leave,"duration":_vm.duration,"appear":_vm.appear},on:{"after-leave":function($event){_vm.$emit('dismiss-end');}}},[(_vm.active)?_c('div',{staticClass:"q-alert row no-wrap",class:_vm.classes},[_c('div',{staticClass:"q-alert-icon row col-auto flex-center"},[_c('q-icon',{attrs:{"name":_vm.alertIcon}})],1),_vm._v(" "),_c('div',{staticClass:"q-alert-content col self-center"},[_vm._t("default"),_vm._v(" "),(_vm.actions && _vm.actions.length)?_c('div',{staticClass:"q-alert-actions row items-center"},_vm._l((_vm.actions),function(btn){return _c('span',{key:btn.label,staticClass:"uppercase",domProps:{"innerHTML":_vm._s(btn.label)},on:{"click":function($event){_vm.dismiss(btn.handler);}}})})):_vm._e()],2),_vm._v(" "),(_vm.dismissible)?_c('div',{staticClass:"q-alert-close self-top col-auto"},[_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"close"},on:{"click":_vm.dismiss}})],1):_vm._e()]):_vm._e()])],1)},staticRenderFns: [],
+var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-alert-container",class:_vm.containerClass},[_c('q-transition',{attrs:{"name":_vm.name,"enter":_vm.enter,"leave":_vm.leave,"duration":_vm.duration,"appear":_vm.appear},on:{"after-leave":function($event){_vm.$emit('dismiss-end');}}},[(_vm.active)?_c('div',{staticClass:"q-alert row no-wrap",class:_vm.classes,style:(_vm.extstyles)},[_c('div',{staticClass:"q-alert-icon row col-auto flex-center"},[_c('q-icon',{attrs:{"name":_vm.alertIcon}})],1),_vm._v(" "),_c('div',{staticClass:"q-alert-content col self-center"},[_vm._t("default"),_vm._v(" "),(_vm.actions && _vm.actions.length)?_c('div',{staticClass:"q-alert-actions row items-center"},_vm._l((_vm.actions),function(btn){return _c('span',{key:btn.label,staticClass:"uppercase",domProps:{"innerHTML":_vm._s(btn.label)},on:{"click":function($event){_vm.dismiss(btn.handler);}}})})):_vm._e()],2),_vm._v(" "),(_vm.dismissible)?_c('div',{staticClass:"q-alert-close self-top col-auto"},[_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"close"},on:{"click":_vm.dismiss}})],1):_vm._e()]):_vm._e()])],1)},staticRenderFns: [],
   name: 'q-alert',
   components: {
     QIcon: QIcon,
@@ -758,6 +758,7 @@ var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     },
     inline: Boolean,
     icon: String,
+    styles: [String, Object],
     dismissible: Boolean,
     actions: Array,
     position: {
@@ -806,6 +807,9 @@ var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     },
     classes: function classes () {
       return ("shadow-2 bg-" + (this.color))
+    },
+    extstyles: function extstyles () {
+      return this.styles
     }
   },
   methods: {
