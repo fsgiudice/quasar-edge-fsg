@@ -736,7 +736,10 @@ var QTransition = {
   }
 };
 
-var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-alert-container",class:_vm.containerClass},[_c('q-transition',{attrs:{"name":_vm.name,"enter":_vm.enter,"leave":_vm.leave,"duration":_vm.duration,"appear":_vm.appear},on:{"after-leave":function($event){_vm.$emit('dismiss-end');}}},[(_vm.active)?_c('div',{staticClass:"q-alert row no-wrap",class:_vm.classes,style:(_vm.extstyles)},[_c('div',{staticClass:"q-alert-icon row col-auto flex-center"},[_c('q-icon',{attrs:{"name":_vm.alertIcon}})],1),_vm._v(" "),_c('div',{staticClass:"q-alert-content col self-center"},[_vm._t("default"),_vm._v(" "),(_vm.actions && _vm.actions.length)?_c('div',{staticClass:"q-alert-actions row items-center"},_vm._l((_vm.actions),function(btn){return _c('span',{key:btn.label,staticClass:"uppercase",domProps:{"innerHTML":_vm._s(btn.label)},on:{"click":function($event){_vm.dismiss(btn.handler);}}})})):_vm._e()],2),_vm._v(" "),(_vm.dismissible)?_c('div',{staticClass:"q-alert-close self-top col-auto"},[_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"close"},on:{"click":_vm.dismiss}})],1):_vm._e()]):_vm._e()])],1)},staticRenderFns: [],
+var _idAlert = 0;
+// let alerts = []
+
+var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-alert-container",class:_vm.containerClass},[_c('q-transition',{attrs:{"name":_vm.name,"enter":_vm.enter,"leave":_vm.leave,"duration":_vm.duration,"appear":_vm.appear},on:{"after-leave":function($event){_vm.$emit('dismiss-end');}}},[(_vm.active)?_c('div',{key:_vm.__id,staticClass:"q-alert row no-wrap",class:_vm.classes,style:(_vm.extstyles)},[_c('div',{staticClass:"q-alert-icon row col-auto flex-center"},[_c('q-icon',{attrs:{"name":_vm.alertIcon}})],1),_vm._v(" "),_c('div',{staticClass:"q-alert-content col self-center"},[_vm._t("default"),_vm._v(" "),(_vm.actions && _vm.actions.length)?_c('div',{staticClass:"q-alert-actions row items-center"},_vm._l((_vm.actions),function(btn,i){return _c('span',{key:'btn_' + i,staticClass:"uppercase",domProps:{"innerHTML":_vm._s(typeof btn.label === 'function' ? btn.label(_vm.countDown(_vm.__id)) : btn.label)},on:{"click":function($event){_vm.dismiss(btn.handler, _vm.__id);}}})})):_vm._e()],2),_vm._v(" "),(_vm.dismissible)?_c('div',{staticClass:"q-alert-close self-top col-auto"},[_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"close"},on:{"click":function($event){_vm.dismiss(null, _vm.__id);}}})],1):_vm._e()]):_vm._e()])],1)},staticRenderFns: [],
   name: 'q-alert',
   components: {
     QIcon: QIcon,
@@ -760,6 +763,10 @@ var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     icon: String,
     styles: [String, Object],
     dismissible: Boolean,
+    timeout: {
+      type: Number,
+      default: -1
+    },
     actions: Array,
     position: {
       type: String,
@@ -772,20 +779,29 @@ var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   },
   data: function data () {
     return {
-      active: this.value
+      active: this.value,
+      counter: this.timeout
     }
+  },
+  created: function created () {
+    _idAlert++;
+    // alerts.push({id: _idAlert, counter: this.timeout})
   },
   watch: {
     value: function value (v) {
       if (v !== this.active) {
         this.active = v;
         if (!v) {
-          this.$emit('dismiss');
+          this.$emit('dismiss', this.__id);
         }
       }
     }
   },
   computed: {
+    __id: function __id () {
+      return _idAlert
+    },
+
     alertIcon: function alertIcon () {
       return this.icon || typeIcon[this.color] || typeIcon.warning
     },
@@ -813,12 +829,40 @@ var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     }
   },
   methods: {
-    dismiss: function dismiss (fn) {
+    countDown: function countDown (id) {
+      var this$1 = this;
+
+      // debugger
+      // console.log('countDown id', id)
+      if (this.timeout > 0) {
+        this.$nextTick(function () {
+          if (this$1.counter > 0) {
+            setTimeout(function () {
+              // console.log('timeout countdown counter', this.__id, this.counter)
+              this$1.counter--;
+            }, 1000);
+          }
+          else {
+            setTimeout(function () {
+              this$1.dismiss(null, this$1.__id);
+              this$1.counter = this$1.timeout;
+            }, 2000);
+          }
+        });
+        // console.log('display countdown id', this.__id, this.counter)
+        return this.counter
+      }
+      // else if (this.timeout === -1 && !this.dismissible)
+      //   {
+      //
+      // }
+    },
+    dismiss: function dismiss (fn, id) {
       this.active = false;
       this.$emit('input', false);
-      this.$emit('dismiss');
+      this.$emit('dismiss', id);
       if (typeof fn === 'function') {
-        fn();
+        fn(id);
       }
     }
   }
@@ -7321,7 +7365,7 @@ var QTooltip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
   }
 };
 
-var TableSticky = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('table',{staticClass:"q-table horizontal-separator"},[_c('colgroup',[(_vm.selection)?_c('col',{staticStyle:{"width":"36px"}}):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('col',{style:({width: col.width})})})],2),_vm._v(" "),(!_vm.noHeader)?_c('thead',[_c('tr',[(_vm.selection)?_c('th',[(!_vm.right)?[(_vm.selection === 'multiple')?_c('q-checkbox',{model:{value:(_vm.selectAll),callback:function ($$v) {_vm.selectAll=$$v;},expression:"selectAll"}},[(_vm.selectAllRowsLabel)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(_vm.selectAllRowsLabel)}}):_vm._e()],1):_c('span',[_vm._v(" ")])]:_c('span',[_vm._v(" ")])],2):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col,index){return _c('th',{class:{invisible: _vm.hidden(index), sortable: col.sort},on:{"click":function($event){_vm.sort(col);}}},[(!_vm.hidden(index))?[(col.sort)?_c('sort-icon',{attrs:{"field":col.field,"sorting":_vm.sorting}}):_vm._e(),_vm._v(" "),_c('span',{domProps:{"innerHTML":_vm._s(col.label)}}),_vm._v(" "),(col.label)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(col.label)}}):_vm._e()]:_vm._e()],2)})],2)]):_vm._e(),_vm._v(" "),(!_vm.head)?_c('tbody',[_vm._t("default")],2):_vm._e()])},staticRenderFns: [],
+var TableSticky = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('table',{staticClass:"q-table horizontal-separator"},[_c('colgroup',[(_vm.selection)?_c('col',{staticStyle:{"width":"36px"}}):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('col',{style:({width: col.width})})})],2),_vm._v(" "),(!_vm.noHeader)?_c('thead',[_c('tr',[(_vm.selection)?_c('th',[(!_vm.right)?[(_vm.selection === 'multiple')?_c('q-checkbox',{model:{value:(_vm.selectAll),callback:function ($$v) {_vm.selectAll=$$v;},expression:"selectAll"}},[(_vm.selectAllRowsLabel)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(_vm.selectAllRowsLabel)}}):_vm._e()],1):_c('span',[_vm._v(" ")])]:_c('span',[_vm._v(" ")])],2):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col,index){return _c('th',{class:{invisible: _vm.hidden(index), sortable: col.sort},on:{"click":function($event){_vm.sort(col);}}},[(!_vm.hidden(index))?[(col.sort)?_c('sort-icon',{attrs:{"field":col.field,"sorting":_vm.sorting}}):_vm._e(),_vm._v(" "),_c('span',{domProps:{"innerHTML":_vm._s(col.label)}}),_vm._v(" "),(col.label)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(col.label)}}):_vm._e()]:_vm._e()],2)})],2)]):_vm._e(),_vm._v(" "),(!_vm.head && !_vm.foot)?_c('tbody',[_vm._t("default")],2):_vm._e(),_vm._v(" "),(!_vm.noFooter)?_c('tfoot',[_c('tr',_vm._l((_vm.cols),function(col){return _c('td',[_c('span',{domProps:{"innerHTML":_vm._s((typeof col.footLabel === 'function' ? col.footLabel() : col.footLabel))}}),_vm._v(" "),(col.footLabel)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(col.footLabel)}}):_vm._e()],1)}))]):_vm._e()])},staticRenderFns: [],
   name: 'q-table-sticky',
   components: {
     SortIcon: SortIcon,
@@ -7332,7 +7376,9 @@ var TableSticky = {render: function(){var _vm=this;var _h=_vm.$createElement;var
     stickyCols: Number,
     cols: Array,
     head: Boolean,
+    foot: Boolean,
     noHeader: Boolean,
+    noFooter: Boolean,
     right: Boolean,
     sorting: Object,
     scroll: Object,
@@ -7422,7 +7468,7 @@ var StickyColumns = {
   }
 };
 
-var TableContent = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('table',{staticClass:"q-table horizontal-separator",style:(_vm.tableStyle)},[_c('colgroup',[(_vm.selection)?_c('col',{staticStyle:{"width":"36px"}}):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('col',{style:({width: col.width})})}),_vm._v(" "),(_vm.head && _vm.scroll.horiz)?_c('col',{style:({width: _vm.scroll.horiz})}):_vm._e()],2),_vm._v(" "),(_vm.head)?_c('thead',[_c('tr',[(_vm.selection)?_c('th',[(_vm.selection === 'multiple')?_c('q-checkbox',{model:{value:(_vm.selectAll),callback:function ($$v) {_vm.selectAll=$$v;},expression:"selectAll"}},[(_vm.selectAllRowsLabel)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(_vm.selectAllRowsLabel)}}):_vm._e()],1):_c('span',[_vm._v(" ")])],1):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('th',{class:{sortable: col.sort},on:{"click":function($event){_vm.sort(col);}}},[(col.sort)?_c('sort-icon',{attrs:{"field":col.field,"sorting":_vm.sorting}}):_vm._e(),_vm._v(" "),_c('span',{domProps:{"innerHTML":_vm._s(col.label)}}),_vm._v(" "),(col.label)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(col.label)}}):_vm._e()],1)}),_vm._v(" "),(_vm.head && _vm.scroll.horiz)?_c('th'):_vm._e()],2)]):_c('tbody',[_vm._t("default")],2)])},staticRenderFns: [],
+var TableContent = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('table',{staticClass:"q-table horizontal-separator",style:(_vm.tableStyle)},[_c('colgroup',[(_vm.selection)?_c('col',{staticStyle:{"width":"36px"}}):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('col',{style:({width: col.width})})}),_vm._v(" "),((_vm.head || _vm.foot) && _vm.scroll.horiz)?_c('col',{style:({width: _vm.scroll.horiz})}):_vm._e()],2),_vm._v(" "),(_vm.head)?_c('thead',[_c('tr',[(_vm.selection)?_c('th',[(_vm.selection === 'multiple')?_c('q-checkbox',{model:{value:(_vm.selectAll),callback:function ($$v) {_vm.selectAll=$$v;},expression:"selectAll"}},[(_vm.selectAllRowsLabel)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(_vm.selectAllRowsLabel)}}):_vm._e()],1):_c('span',[_vm._v(" ")])],1):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('th',{class:{sortable: col.sort},on:{"click":function($event){_vm.sort(col);}}},[(col.sort)?_c('sort-icon',{attrs:{"field":col.field,"sorting":_vm.sorting}}):_vm._e(),_vm._v(" "),_c('span',{domProps:{"innerHTML":_vm._s(col.label)}}),_vm._v(" "),(col.label)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(col.label)}}):_vm._e()],1)}),_vm._v(" "),((_vm.head || _vm.foot) && _vm.scroll.horiz)?_c('th'):_vm._e()],2)]):(!_vm.head && !_vm.foot)?_c('tbody',[_vm._t("default")],2):_vm._e(),_vm._v(" "),(_vm.foot)?_c('tfoot',[_c('tr',[_vm._m(0),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('td',[_c('span',{domProps:{"innerHTML":_vm._s((typeof col.footLabel === 'function' ? col.footLabel() : col.footLabel))}}),_vm._v(" "),(col.footLabel)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(col.footLabel)}}):_vm._e()],1)}),_vm._v(" "),((_vm.head || _vm.foot) && _vm.scroll.horiz)?_c('td'):_vm._e()],2)]):_vm._e()])},staticRenderFns: [function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('td',[_c('span',[_vm._v(" ")])])}],
   name: 'q-table-content',
   components: {
     SortIcon: SortIcon,
@@ -7432,6 +7478,7 @@ var TableContent = {render: function(){var _vm=this;var _h=_vm.$createElement;va
   props: {
     cols: Array,
     head: Boolean,
+    foot: Boolean,
     sorting: Object,
     scroll: Object,
     selection: [String, Boolean],
@@ -7470,7 +7517,7 @@ var TableContent = {render: function(){var _vm=this;var _h=_vm.$createElement;va
 
 // import clone from '../../utils/clone'
 
-var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-data-table"},[(_vm.hasToolbar && _vm.toolbar === '')?[_c('div',{staticClass:"q-data-table-toolbar upper-toolbar row reverse-wrap items-center justify-end"},[(_vm.config.format || _vm.config.title)?_c('div',{staticClass:"q-data-table-title ellipsis col",domProps:{"innerHTML":_vm._s(_vm.displayFormat)}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"row items-center"},[(_vm.config.refresh && !_vm.refreshing)?_c('q-btn',{attrs:{"flat":"","color":"primary"},on:{"click":_vm.refresh}},[_c('q-icon',{attrs:{"name":"refresh"}})],1):_vm._e(),_vm._v(" "),(_vm.refreshing)?_c('q-btn',{staticClass:"disabled"},[_c('q-icon',{staticClass:"animate-spin-reverse",attrs:{"name":"cached"}})],1):_vm._e(),_vm._v(" "),(_vm.config.columnPicker)?_c('q-select',{staticStyle:{"margin":"0 0 0 10px"},attrs:{"multiple":"multiple","toggle":"","options":_vm.columnSelectionOptions,"display-value":_vm.labels.columns,"simple":""},model:{value:(_vm.columnSelection),callback:function ($$v) {_vm.columnSelection=$$v;},expression:"columnSelection"}}):_vm._e()],1)])]:_vm._e(),_vm._v(" "),(_vm.isPaginationDisplayed)?_c('table-pagination',{attrs:{"disabled":!_vm.isPaginationEnabled,"pagination":_vm.pagination,"entries":_vm.pagination.entries,"labels":_vm.labels},on:{"paginationRowsChanged":_vm.emitRowsChanged}}):_vm._e(),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.toolbar === 'selection'),expression:"toolbar === 'selection'"}],staticClass:"q-data-table-toolbar upper-toolbar row reverse-wrap items-center justify-end q-data-table-selection"},[_c('div',{staticClass:"col"},[_vm._v(" "+_vm._s(_vm.rowsSelected)+" "),(_vm.rowsSelected === 1)?_c('span',[_vm._v(_vm._s(_vm.labels.selected.singular))]):_c('span',[_vm._v(_vm._s(_vm.labels.selected.plural))]),_vm._v(" "),_c('q-btn',{attrs:{"flat":"","small":"","color":"primary"},on:{"click":_vm.clearSelection}},[_vm._v(_vm._s(_vm.labels.clear))])],1),_vm._v(" "),_c('div',[_vm._t("selection",null,{rows:_vm.selectedRows})],2)]),_vm._v(" "),(_vm.filteringCols.length)?_c('table-filter',{attrs:{"filtering":_vm.filtering,"columns":_vm.filteringCols,"labels":_vm.labels}}):_vm._e(),_vm._v(" "),(_vm.responsive)?[(_vm.message)?_c('div',{staticClass:"q-data-table-message row flex-center",domProps:{"innerHTML":_vm._s(_vm.message)}}):_c('div',{staticStyle:{"overflow":"auto"},style:(_vm.bodyStyle)},[_c('table',{ref:"body",staticClass:"q-table horizontal-separator responsive"},[_c('tbody',_vm._l((_vm.rows),function(row,index){return _c('tr',{on:{"click":function($event){_vm.emitRowClick(row);},"mouseover":function($event){_vm.emitRowHover(row, true);},"mouseleave":function($event){_vm.emitRowHover(row, false);}}},[(_vm.config.selection)?_c('td',[(_vm.config.selection === 'multiple' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-checkbox',{model:{value:(_vm.rowSelection[index][0]),callback:function ($$v) {_vm.$set(_vm.rowSelection[index], 0, $$v);},expression:"rowSelection[index][0]"}}):(_vm.config.selection === 'single' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-radio',{attrs:{"val":index},model:{value:(_vm.rowSelection[0]),callback:function ($$v) {_vm.$set(_vm.rowSelection, 0, $$v);},expression:"rowSelection[0]"}}):_vm._e()],1):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field])),attrs:{"data-th":col.label}},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)})],2)}))])])]:_c('div',{staticClass:"q-data-table-container",on:{"wheel":_vm.mouseWheel,"mousewheel":_vm.mouseWheel,"DOMMouseScroll":_vm.mouseWheel}},[(_vm.hasHeader)?_c('div',{ref:"head",staticClass:"q-data-table-head",style:({marginRight: _vm.scroll.vert})},[_c('table-content',{attrs:{"head":"","cols":_vm.cols,"sorting":_vm.sorting,"scroll":_vm.scroll,"selection":_vm.config.selection,"rowAllSelection":_vm.rowAllSelected,"selectAllRowsLabel":_vm.selectAllLabel},on:{"sort":_vm.setSortField,"selectAllRows":_vm.selectAllRows}})],1):_vm._e(),_vm._v(" "),_c('div',{ref:"body",staticClass:"q-data-table-body",style:(_vm.bodyStyle),on:{"scroll":_vm.scrollHandler}},[(_vm.message)?_c('div',{staticClass:"q-data-table-message row flex-center",domProps:{"innerHTML":_vm._s(_vm.message)}}):_c('table-content',{attrs:{"cols":_vm.cols,"selection":_vm.config.selection}},_vm._l((_vm.rows),function(row){return _c('tr',{style:(_vm.rowStyle),on:{"click":function($event){_vm.emitRowClick(row);},"mouseover":function($event){_vm.emitRowHover(row, true);},"mouseleave":function($event){_vm.emitRowHover(row, false);}}},[(_vm.config.selection)?_c('td'):_vm._e(),_vm._v(" "),(_vm.leftStickyColumns)?_c('td',{attrs:{"colspan":_vm.leftStickyColumns}}):_vm._e(),_vm._v(" "),_vm._l((_vm.regularCols),function(col){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field]))},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)}),_vm._v(" "),(_vm.rightStickyColumns)?_c('td',{attrs:{"colspan":_vm.rightStickyColumns}}):_vm._e()],2)}))],1),_vm._v(" "),(!_vm.message && (_vm.leftStickyColumns || _vm.config.selection))?[_c('div',{ref:"stickyLeft",staticClass:"q-data-table-sticky-left",style:({bottom: _vm.scroll.horiz})},[_c('table-sticky',{attrs:{"no-header":!_vm.hasHeader,"sticky-cols":_vm.leftStickyColumns,"cols":_vm.cols,"sorting":_vm.sorting,"selection":_vm.config.selection,"rowAllSelection":_vm.rowAllSelected,"selectAllRowsLabel":_vm.selectAllLabel},on:{"selectAllRows":_vm.selectAllRows}},_vm._l((_vm.rows),function(row,index){return _c('tr',{key:row.__lastUpdate,style:(_vm.rowStyle),on:{"click":function($event){_vm.emitRowClick(row);},"mouseover":function($event){_vm.emitRowHover(row, true);},"mouseleave":function($event){_vm.emitRowHover(row, false);}}},[(_vm.config.selection)?_c('td',[(_vm.config.selection === 'multiple' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-checkbox',{model:{value:(_vm.rowSelection[index][0]),callback:function ($$v) {_vm.$set(_vm.rowSelection[index], 0, $$v);},expression:"rowSelection[index][0]"}}):(_vm.config.selection === 'single' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-radio',{attrs:{"val":index},model:{value:(_vm.rowSelection[0]),callback:function ($$v) {_vm.$set(_vm.rowSelection, 0, $$v);},expression:"rowSelection[0]"}}):_vm._e()],1):_vm._e(),_vm._v(" "),_vm._l((_vm.leftCols),function(col,index){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field]))},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)})],2)}))],1),_vm._v(" "),(_vm.hasHeader)?_c('div',{staticClass:"q-data-table-sticky-left",style:({bottom: _vm.scroll.horiz})},[_c('table-sticky',{attrs:{"head":"","sticky-cols":_vm.leftStickyColumns,"scroll":_vm.scroll,"cols":_vm.cols,"sorting":_vm.sorting,"selection":_vm.config.selection,"rowAllSelection":_vm.rowAllSelected,"selectAllRowsLabel":_vm.selectAllLabel},on:{"sort":_vm.setSortField,"selectAllRows":_vm.selectAllRows}})],1):_vm._e()]:_vm._e()],2),_vm._v(" "),(_vm.isPaginationDisplayed)?_c('table-pagination',{attrs:{"disabled":!_vm.isPaginationEnabled,"pagination":_vm.pagination,"entries":_vm.pagination.entries,"labels":_vm.labels},on:{"paginationRowsChanged":_vm.emitRowsChanged}}):_vm._e()],2)},staticRenderFns: [],
+var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-data-table"},[(_vm.hasToolbar && _vm.toolbar === '')?[_c('div',{staticClass:"q-data-table-toolbar upper-toolbar row reverse-wrap items-center justify-end"},[(_vm.config.format || _vm.config.title)?_c('div',{staticClass:"q-data-table-title ellipsis col",domProps:{"innerHTML":_vm._s(_vm.displayFormat)}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"row items-center"},[(_vm.config.refresh && !_vm.refreshing)?_c('q-btn',{attrs:{"flat":"","color":"primary"},on:{"click":_vm.refresh}},[_c('q-icon',{attrs:{"name":"refresh"}})],1):_vm._e(),_vm._v(" "),(_vm.refreshing)?_c('q-btn',{staticClass:"disabled"},[_c('q-icon',{staticClass:"animate-spin-reverse",attrs:{"name":"cached"}})],1):_vm._e(),_vm._v(" "),(_vm.config.columnPicker)?_c('q-select',{staticStyle:{"margin":"0 0 0 10px"},attrs:{"multiple":"multiple","toggle":"","options":_vm.columnSelectionOptions,"display-value":_vm.labels.columns,"simple":""},model:{value:(_vm.columnSelection),callback:function ($$v) {_vm.columnSelection=$$v;},expression:"columnSelection"}}):_vm._e()],1)])]:_vm._e(),_vm._v(" "),(_vm.isPaginationDisplayed)?_c('table-pagination',{attrs:{"disabled":!_vm.isPaginationEnabled,"pagination":_vm.pagination,"entries":_vm.pagination.entries,"labels":_vm.labels},on:{"paginationRowsChanged":_vm.emitRowsChanged}}):_vm._e(),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.toolbar === 'selection'),expression:"toolbar === 'selection'"}],staticClass:"q-data-table-toolbar upper-toolbar row reverse-wrap items-center justify-end q-data-table-selection"},[_c('div',{staticClass:"col"},[_vm._v(" "+_vm._s(_vm.rowsSelected)+" "),(_vm.rowsSelected === 1)?_c('span',[_vm._v(_vm._s(_vm.labels.selected.singular))]):_c('span',[_vm._v(_vm._s(_vm.labels.selected.plural))]),_vm._v(" "),_c('q-btn',{attrs:{"flat":"","small":"","color":"primary"},on:{"click":_vm.clearSelection}},[_vm._v(_vm._s(_vm.labels.clear))])],1),_vm._v(" "),_c('div',[_vm._t("selection",null,{rows:_vm.selectedRows})],2)]),_vm._v(" "),(_vm.filteringCols.length)?_c('table-filter',{attrs:{"filtering":_vm.filtering,"columns":_vm.filteringCols,"labels":_vm.labels}}):_vm._e(),_vm._v(" "),(_vm.responsive)?[(_vm.message)?_c('div',{staticClass:"q-data-table-message row flex-center",domProps:{"innerHTML":_vm._s(_vm.message)}}):_c('div',{staticStyle:{"overflow":"auto"},style:(_vm.bodyStyle)},[_c('table',{ref:"body",staticClass:"q-table horizontal-separator responsive"},[_c('tbody',_vm._l((_vm.rows),function(row,index){return _c('tr',{on:{"click":function($event){_vm.emitRowClick(row);},"mouseover":function($event){_vm.emitRowHover(row, true);},"mouseleave":function($event){_vm.emitRowHover(row, false);}}},[(_vm.config.selection)?_c('td',[(_vm.config.selection === 'multiple' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-checkbox',{model:{value:(_vm.rowSelection[index][0]),callback:function ($$v) {_vm.$set(_vm.rowSelection[index], 0, $$v);},expression:"rowSelection[index][0]"}}):(_vm.config.selection === 'single' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-radio',{attrs:{"val":index},model:{value:(_vm.rowSelection[0]),callback:function ($$v) {_vm.$set(_vm.rowSelection, 0, $$v);},expression:"rowSelection[0]"}}):_vm._e()],1):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field])),attrs:{"data-th":col.label}},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)})],2)}))])])]:_c('div',{staticClass:"q-data-table-container",on:{"wheel":_vm.mouseWheel,"mousewheel":_vm.mouseWheel,"DOMMouseScroll":_vm.mouseWheel}},[(_vm.hasHeader)?_c('div',{ref:"head",staticClass:"q-data-table-head",style:({marginRight: _vm.scroll.vert})},[_c('table-content',{attrs:{"head":"","cols":_vm.cols,"sorting":_vm.sorting,"scroll":_vm.scroll,"selection":_vm.config.selection,"rowAllSelection":_vm.rowAllSelected,"selectAllRowsLabel":_vm.selectAllLabel},on:{"sort":_vm.setSortField,"selectAllRows":_vm.selectAllRows}})],1):_vm._e(),_vm._v(" "),_c('div',{ref:"body",staticClass:"q-data-table-body",style:(_vm.bodyStyle),on:{"scroll":_vm.scrollHandler}},[(_vm.message)?_c('div',{staticClass:"q-data-table-message row flex-center",domProps:{"innerHTML":_vm._s(_vm.message)}}):_c('table-content',{attrs:{"cols":_vm.cols,"selection":_vm.config.selection}},_vm._l((_vm.rows),function(row){return _c('tr',{style:(_vm.rowStyle),on:{"click":function($event){_vm.emitRowClick(row);},"mouseover":function($event){_vm.emitRowHover(row, true);},"mouseleave":function($event){_vm.emitRowHover(row, false);}}},[(_vm.config.selection)?_c('td'):_vm._e(),_vm._v(" "),(_vm.leftStickyColumns)?_c('td',{attrs:{"colspan":_vm.leftStickyColumns}}):_vm._e(),_vm._v(" "),_vm._l((_vm.regularCols),function(col){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field]))},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)}),_vm._v(" "),(_vm.rightStickyColumns)?_c('td',{attrs:{"colspan":_vm.rightStickyColumns}}):_vm._e()],2)}))],1),_vm._v(" "),(!_vm.message && (_vm.leftStickyColumns || _vm.config.selection))?[_c('div',{ref:"stickyLeft",staticClass:"q-data-table-sticky-left",style:({bottom: _vm.scroll.horiz})},[_c('table-sticky',{attrs:{"no-header":!_vm.hasHeader,"no-footer":!_vm.hasFooter,"sticky-cols":_vm.leftStickyColumns,"cols":_vm.cols,"sorting":_vm.sorting,"selection":_vm.config.selection,"rowAllSelection":_vm.rowAllSelected,"selectAllRowsLabel":_vm.selectAllLabel},on:{"selectAllRows":_vm.selectAllRows}},_vm._l((_vm.rows),function(row,index){return _c('tr',{key:row.__lastUpdate,style:(_vm.rowStyle),on:{"click":function($event){_vm.emitRowClick(row);},"mouseover":function($event){_vm.emitRowHover(row, true);},"mouseleave":function($event){_vm.emitRowHover(row, false);}}},[(_vm.config.selection)?_c('td',[(_vm.config.selection === 'multiple' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-checkbox',{model:{value:(_vm.rowSelection[index][0]),callback:function ($$v) {_vm.$set(_vm.rowSelection[index], 0, $$v);},expression:"rowSelection[index][0]"}}):(_vm.config.selection === 'single' && (typeof _vm.config.selectable === 'function' ? _vm.config.selectable(row) : true))?_c('q-radio',{attrs:{"val":index},model:{value:(_vm.rowSelection[0]),callback:function ($$v) {_vm.$set(_vm.rowSelection, 0, $$v);},expression:"rowSelection[0]"}}):_vm._e()],1):_vm._e(),_vm._v(" "),_vm._l((_vm.leftCols),function(col,index){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field]))},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)})],2)}))],1),_vm._v(" "),(_vm.hasHeader)?_c('div',{staticClass:"q-data-table-sticky-left",style:({bottom: _vm.scroll.horiz})},[_c('table-sticky',{attrs:{"head":"","sticky-cols":_vm.leftStickyColumns,"scroll":_vm.scroll,"cols":_vm.cols,"sorting":_vm.sorting,"selection":_vm.config.selection,"rowAllSelection":_vm.rowAllSelected,"selectAllRowsLabel":_vm.selectAllLabel},on:{"sort":_vm.setSortField,"selectAllRows":_vm.selectAllRows}})],1):_vm._e(),_vm._v(" "),(_vm.hasFooter)?_c('div',{ref:"foot",staticClass:"q-data-table-head",style:({marginRight: _vm.scroll.vert})},[_c('table-content',{attrs:{"foot":"","cols":_vm.cols,"scroll":_vm.scroll}})],1):_vm._e()]:_vm._e()],2),_vm._v(" "),(_vm.isPaginationDisplayed)?_c('table-pagination',{attrs:{"disabled":!_vm.isPaginationEnabled,"pagination":_vm.pagination,"entries":_vm.pagination.entries,"labels":_vm.labels},on:{"paginationRowsChanged":_vm.emitRowsChanged}}):_vm._e()],2)},staticRenderFns: [],
   name: 'q-data-table',
   components: {
     QSelect: QSelect,
@@ -7642,6 +7689,9 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
     },
     hasHeader: function hasHeader () {
       return !this.config.noHeader
+    },
+    hasFooter: function hasFooter () {
+      return !this.config.noFooter
     },
     selectAllLabel: function selectAllLabel () {
       return this.config && this.config.labels && this.config.labels.selectAllCheckBox
@@ -12516,7 +12566,8 @@ function create (opts) {
       };
 
       return h(
-        QAlert, {
+        QAlert,
+        {
           style: {
             padding: '18px'
           },
