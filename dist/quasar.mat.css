@@ -2400,6 +2400,77 @@ body.with-modal {
 .q-modal-left-leave-active .modal-content {
   transform: translateX(-101%);
 }
+.q-notifications-list {
+  z-index: 8200;
+  pointer-events: none;
+  left: 0;
+  right: 0;
+  margin-bottom: 10px;
+  position: relative;
+}
+.q-notifications-list--center {
+  top: 0;
+  bottom: 0;
+}
+.q-notifications-list--top {
+  top: 0;
+}
+.q-notifications-list--bottom {
+  bottom: 0;
+}
+.q-notify-container {
+  pointer-events: none;
+  padding: 2px;
+}
+.q-notify {
+  color: #fff;
+  background: #db2828;
+  border-radius: 2px;
+  min-width: 200px;
+  pointer-events: all;
+}
+.q-notify-icon,
+.q-notify-content {
+  padding: 0.7rem;
+}
+.q-notify-icon {
+  font-size: 150%;
+  background: rgba(0,0,0,0.2);
+}
+.q-notify-close {
+  padding: 0;
+}
+.q-notify-close .q-icon {
+  padding: 0.9rem;
+}
+.q-notify-actions {
+  margin-top: 0.5rem;
+  border-top: 1px solid rgba(0,0,0,0.2);
+  padding-top: 0.5rem;
+  font-size: 0.8rem;
+}
+.q-notify-actions span {
+  cursor: pointer;
+}
+.q-notify-actions span + span {
+  margin-left: 16px;
+}
+.q-notify-badge {
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 10px;
+  line-height: 10px;
+  font-weight: normal;
+  vertical-align: baseline;
+  position: relative;
+  top: -5px;
+  right: 40px;
+  cursor: inherit;
+  color: #fff;
+  background-color: #db2828;
+  height: 24px;
+  margin-right: -18px;
+}
 .q-option-inner {
   display: inline-block;
   color: #bdbdbd;
@@ -5361,6 +5432,9 @@ img.avatar {
 }
 .z-alert {
   z-index: 8100;
+}
+.z-notify {
+  z-index: 8200;
 }
 .row,
 .column,
