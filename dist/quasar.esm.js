@@ -10339,7 +10339,7 @@ var QSideLink = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
 var _idNotify = 0;
 // let alerts = []
 
-var QNotify = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-notify-container",class:_vm.containerClass},[_c('q-transition',{attrs:{"name":_vm.name,"enter":_vm.enter,"leave":_vm.leave,"duration":_vm.duration,"appear":_vm.appear},on:{"after-leave":function($event){_vm.$emit('dismiss-end');}}},[(_vm.active)?_c('div',{key:_vm.__id,staticClass:"q-notify row no-wrap",class:_vm.classes,style:(_vm.extstyles)},[_c('div',{staticClass:"q-notify-icon row col-auto flex-center"},[_c('q-icon',{attrs:{"name":_vm.notifyIcon}})],1),_vm._v(" "),(_vm.badge > 1)?_c('div',{staticClass:"q-notify-badge row col-auto flex-center"},[_vm._v(" "+_vm._s(_vm.badge)+" ")]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-notify-content col self-center"},[_vm._t("default"),_vm._v(" "),(_vm.actions && _vm.actions.length)?_c('div',{staticClass:"q-notify-actions row items-center"},_vm._l((_vm.actions),function(btn,i){return _c('span',{key:'btn_' + i,staticClass:"uppercase",domProps:{"innerHTML":_vm._s(_vm.htmlContent(btn,_vm.__id))},on:{"click":function($event){_vm.dismiss(btn.handler, _vm.__id);}}})})):_vm._e()],2),_vm._v(" "),(_vm.dismissible)?_c('div',{staticClass:"q-notify-close self-top col-auto"},[_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"close"},on:{"click":function($event){_vm.dismiss(null, _vm.__id);}}})],1):_vm._e()]):_vm._e()])],1)},staticRenderFns: [],
+var QNotify = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-notify-container",class:_vm.containerClass},[_c('q-transition',{attrs:{"name":_vm.name,"enter":_vm.enter,"leave":_vm.leave,"duration":_vm.duration,"appear":_vm.appear},on:{"after-leave":function($event){_vm.$emit('dismiss-end');}}},[(_vm.active)?_c('div',{key:_vm.__id,staticClass:"q-notify row no-wrap",class:_vm.classes,style:(_vm.extstyles)},[_c('div',{staticClass:"q-notify-icon row col-auto flex-center"},[_c('q-icon',{attrs:{"name":_vm.notifyIcon}})],1),_vm._v(" "),(!_vm.noBadge && _vm.badge > 1)?_c('div',{staticClass:"q-notify-badge row col-auto flex-center"},[_vm._v(" "+_vm._s(_vm.badge)+" ")]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-notify-content col self-center"},[_vm._t("default"),_vm._v(" "),(_vm.actions && _vm.actions.length)?_c('div',{staticClass:"q-notify-actions row items-center"},_vm._l((_vm.actions),function(btn,i){return _c('span',{key:'btn_' + i,staticClass:"uppercase",domProps:{"innerHTML":_vm._s(_vm.htmlContent(btn,_vm.__id))},on:{"click":function($event){_vm.dismiss(btn.handler, _vm.__id);}}})})):_vm._e()],2),_vm._v(" "),(_vm.dismissible)?_c('div',{staticClass:"q-notify-close self-top col-auto"},[_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"close"},on:{"click":function($event){_vm.dismiss(null, _vm.__id);}}})],1):_vm._e()]):_vm._e()])],1)},staticRenderFns: [],
   name: 'q-notify',
   components: {
     QIcon: QIcon,
@@ -10358,6 +10358,7 @@ var QNotify = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
       type: Number,
       default: 1
     },
+    noBadge: Boolean,
     name: String,
     enter: String,
     leave: String,
