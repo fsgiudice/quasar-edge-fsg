@@ -7617,6 +7617,7 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
       var data = this.internalData || [];
 
       if (!data.length) {
+        this.pagination.entries = 0;
         return []
       }
 
@@ -7658,6 +7659,7 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
         this.sort(rows);
       }
 
+      // console.log('this.pagination.entries, rows.length', this.pagination.entries, rows.length)
       this.pagination.entries = rows.length;
       if (this.pagination.rowsPerPage > 0) {
         rows = this.paginate(rows);
@@ -7719,7 +7721,8 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
     displayFormat: function displayFormat () {
       var f = this.config.format || '%T';
       f = f.replace('%T', this.config.title);
-      f = f.replace('%N', this.rows.length);
+      // f = f.replace('%N', this.rows.length)
+      f = f.replace('%N', this.rows.length > 0 ? this.pagination.entries : 0);
       if (this.config.labels && this.config.labels.textNumber) {
         f = f.replace('%text_number', this.rows.length === 1 ? this.config.labels.textNumber.singular || '' : this.config.labels.textNumber.plural || '');
       }
