@@ -4503,6 +4503,7 @@ var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     label: String,
     labelColor: String,
     sublabel: String,
+    sublabelColor: String,
     labelLines: [String, Number],
     sublabelLines: [String, Number]
   },
